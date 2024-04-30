@@ -64,12 +64,7 @@ namespace TripsData
                 var citizens = _query.ToEntityArray(Allocator.Temp);
 
                 //Citizen Purposes
-                int gw_day = 0;
-                int gw_night = 0;
-                int gw_evening = 0;
-                int gh_day = 0;
-                int gh_night = 0;
-                int gh_evening = 0;
+                int[] cimpurp = new int[(int)Purpose.Count];
 
                 foreach (var cim in citizens)
                 {
@@ -97,46 +92,7 @@ namespace TripsData
                             }
                         }
 
-                        if ((EntityManager.TryGetComponent<Worker>(cim, out data3)))
-                        {
-                            if (data2.m_Purpose.Equals(Purpose.GoingToWork))
-                            {
-                                if (data3.m_Shift.Equals(Workshift.Night))
-                                {
-                                    gw_night++;
-                                }
-                                else
-                                {
-
-                                    if (data3.m_Shift.Equals(Workshift.Evening))
-                                    {
-                                        gw_evening++;
-                                    }
-                                    else
-                                    {
-                                        gw_day++;
-                                    }
-                                }
-                            }
-                            else if (data2.m_Purpose.Equals(Purpose.GoingHome))
-                            {
-                                if (data3.m_Shift.Equals(Workshift.Night))
-                                {
-                                    gh_night++;
-                                }
-                                else
-                                {
-                                    if (data3.m_Shift.Equals(Workshift.Evening))
-                                    {
-                                        gh_evening++;
-                                    }
-                                    else
-                                    {
-                                        gh_day++;
-                                    }
-                                }
-                            }
-                        }
+                        cimpurp[(int)data2.m_Purpose]++;
                     }
                 }
 
@@ -153,10 +109,17 @@ namespace TripsData
                             File.Delete(fileName);
                         }
 
+                        string header = "hour";
+                        for(int i = 0; i < (int)Purpose.Count; i++)
+                        {
+                            Purpose purps = (Purpose)i;
+                            header += $",{purps.ToString()}";
+                        }
+
                         Mod.log.Info($"Creating file: {fileName}");
                         using (StreamWriter sw = File.AppendText(fileName))
                         {
-                            sw.WriteLine($"hour,gw_day,gw_evening,gw_night,gh_day,gh_evening,gh_night");
+                            sw.WriteLine(header);
                         }
 
                         // Get the files
@@ -186,13 +149,19 @@ namespace TripsData
                         }
                     }
 
+                    string line = $"{(float)index / 2f}";
+                    for (int i = 0; i < (int)Purpose.Count; i++)
+                    {
+                        line += $",{cimpurp[i]}";
+                    }
+
                     using (StreamWriter sw = File.AppendText(fileName))
                     {
-                        sw.WriteLine($"{(float)index / 2f},{gw_day},{gw_evening},{gw_night},{gh_day},{gh_evening},{gh_night}");
+                        sw.WriteLine(line);
                     }
                 }
                 
-                if (currentDateTime.Hour == 23 && half_hour == 1 && Mod.m_Setting.trip_type)
+                if (currentDateTime.Hour == 23 && half_hour == 1)
                 {
                     int[] hbw = new int[48];
                     int[] hbsch = new int[48];
@@ -461,6 +430,7 @@ namespace TripsData
                         thour = null;
                         tpurp = null;
                     }
+                    
                     Dictionary<int, Purpose[]> _outputDataTemp = new Dictionary<int, Purpose[]>();
                     int[] keys = _outputData.Keys.ToArray<int>();
                     foreach (var key in keys)
@@ -478,51 +448,54 @@ namespace TripsData
                         }
                     }
 
-                    path = Path.Combine(Mod.outputPath, Mod.tripsoutput);
-                    fileName = path +
-                        "_" + currentDateTime.DayOfYear + "_" + currentDateTime.Year + ".csv";
-
-                    if(File.Exists(fileName))
+                    if (Mod.m_Setting.trip_type)
                     {
-                        File.Delete(fileName);
-                    }
+                        path = Path.Combine(Mod.outputPath, Mod.tripsoutput);
+                        fileName = path +
+                            "_" + currentDateTime.DayOfYear + "_" + currentDateTime.Year + ".csv";
 
-                    Mod.log.Info($"Creating file: {fileName}");
-                    using (StreamWriter sw = File.AppendText(fileName))
-                    {
-                        sw.WriteLine($"hour,trip_purpose,trips");
-                        for (int h = 0; h < 48; h++)
+                        if (File.Exists(fileName))
                         {
-                            sw.WriteLine($"{h/2f},hbw,{hbw[h]}");
-                            sw.WriteLine($"{h/2f},hbsch,{hbsch[h]}");
-                            sw.WriteLine($"{h/2f},hbo,{hbo[h]}");
-                            sw.WriteLine($"{h/2f},nhb,{nhb[h]}");
+                            File.Delete(fileName);
                         }
-                    }
-                    // Get the files
-                    DirectoryInfo info = new DirectoryInfo(Mod.outputPath);
-                    FileInfo[] files = info.GetFiles(Mod.tripsoutput + "*");
 
-                    // Sort by creation-time descending 
-                    Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
-                    {
-                        return f2.CreationTime.CompareTo(f1.CreationTime);
-                    });
-
-                    while(files.Length > Mod.m_Setting.numOutputs)
-                    {
-                        Mod.log.Info($"Deleting: {files[0].FullName}");
-                        File.Delete(files[0].FullName);
-
+                        Mod.log.Info($"Creating file: {fileName}");
+                        using (StreamWriter sw = File.AppendText(fileName))
+                        {
+                            sw.WriteLine($"hour,trip_purpose,trips");
+                            for (int h = 0; h < 48; h++)
+                            {
+                                sw.WriteLine($"{h / 2f},hbw,{hbw[h]}");
+                                sw.WriteLine($"{h / 2f},hbsch,{hbsch[h]}");
+                                sw.WriteLine($"{h / 2f},hbo,{hbo[h]}");
+                                sw.WriteLine($"{h / 2f},nhb,{nhb[h]}");
+                            }
+                        }
                         // Get the files
-                        info = new DirectoryInfo(path);
-                        files = info.GetFiles(Mod.tripsoutput + "*");
+                        DirectoryInfo info = new DirectoryInfo(Mod.outputPath);
+                        FileInfo[] files = info.GetFiles(Mod.tripsoutput + "*");
 
                         // Sort by creation-time descending 
                         Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
                         {
                             return f2.CreationTime.CompareTo(f1.CreationTime);
                         });
+
+                        while (files.Length > Mod.m_Setting.numOutputs)
+                        {
+                            Mod.log.Info($"Deleting: {files[0].FullName}");
+                            File.Delete(files[0].FullName);
+
+                            // Get the files
+                            info = new DirectoryInfo(path);
+                            files = info.GetFiles(Mod.tripsoutput + "*");
+
+                            // Sort by creation-time descending 
+                            Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
+                            {
+                                return f2.CreationTime.CompareTo(f1.CreationTime);
+                            });
+                        }
                     }
                 }
             }
