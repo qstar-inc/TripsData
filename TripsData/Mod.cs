@@ -1,4 +1,5 @@
 ﻿using Colossal.IO.AssetDatabase;
+using Colossal.PSI.Environment;
 using Colossal.Logging;
 using Game;
 using Game.Modding;
@@ -17,8 +18,11 @@ namespace TripsData
         public static string tripsoutput = "Trips";
         public static string cimpurposeoutput = "CitizenPurpose";
         public static string smoothspeed = "SmoothSpeed";
+        public static string transit = "transit";
+        public static string cars = "cars";
+        public static string trucks = "trucks";
 
-        public static string outputPath = Path.Combine(System.Environment.GetEnvironmentVariable("CSII_USERDATAPATH"), "ModsData", nameof(TripsData));          
+        public static string outputPath = Path.Combine(EnvPath.kUserDataPath, "ModsData", nameof(TripsData));          
 
         public void OnLoad(UpdateSystem updateSystem)
         {
@@ -41,6 +45,9 @@ namespace TripsData
 
             updateSystem.UpdateAt<CitizenStatistics>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<SimulationStatistics>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<TransitStatistics>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<CarStatistics>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<TruckStatistics>(SystemUpdatePhase.GameSimulation);
         }
 
         public void OnDispose()

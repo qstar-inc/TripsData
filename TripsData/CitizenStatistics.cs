@@ -70,7 +70,6 @@ namespace TripsData
                 {
                     Citizen data1;
                     TravelPurpose data2;
-                    Worker data3;
 
                     data2 = EntityManager.GetComponentData<TravelPurpose>(cim);
                     if (EntityManager.TryGetComponent<Citizen>(cim, out data1))
@@ -104,11 +103,6 @@ namespace TripsData
                 {
                     if (index == 0)
                     {
-                        if (File.Exists(fileName))
-                        {
-                            File.Delete(fileName);
-                        }
-
                         string header = "hour";
                         for(int i = 0; i < (int)Purpose.Count; i++)
                         {
@@ -116,37 +110,7 @@ namespace TripsData
                             header += $",{purps.ToString()}";
                         }
 
-                        Mod.log.Info($"Creating file: {fileName}");
-                        using (StreamWriter sw = File.AppendText(fileName))
-                        {
-                            sw.WriteLine(header);
-                        }
-
-                        // Get the files
-                        DirectoryInfo info = new DirectoryInfo(Mod.outputPath);
-                        FileInfo[] files = info.GetFiles(Mod.cimpurposeoutput + "*");
-
-                        // Sort by creation-time descending 
-                        Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
-                        {
-                            return f2.CreationTime.CompareTo(f1.CreationTime);
-                        });
-
-                        while (files.Length > Mod.m_Setting.numOutputs)
-                        {
-                            Mod.log.Info($"Deleting: {files[0].FullName}");
-                            File.Delete(files[0].FullName);
-
-                            // Get the files
-                            info = new DirectoryInfo(path);
-                            files = info.GetFiles(Mod.tripsoutput + "*");
-
-                            // Sort by creation-time descending 
-                            Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
-                            {
-                                return f2.CreationTime.CompareTo(f1.CreationTime);
-                            });
-                        }
+                        Utils.createAndDeleteFiles(fileName, header, Mod.cimpurposeoutput, path);
                     }
 
                     string line = $"{(float)index / 2f}";
@@ -262,7 +226,12 @@ namespace TripsData
                             }
 
                             int h = thour[k];
-                            if (h > 23 && (h - previous_hour) < 20)
+                            int hour_diff = h - previous_hour;
+                            if(previous_hour > h)
+                            {
+                                hour_diff += 72;
+                            }
+                            if (h > 23 && (hour_diff) < 20)
                             {
                                 if ((h == 24 && previous.Equals(next) && (next_hour == 25)) || previous.Equals(current))
                                 {
@@ -478,7 +447,7 @@ namespace TripsData
                         // Sort by creation-time descending 
                         Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
                         {
-                            return f2.CreationTime.CompareTo(f1.CreationTime);
+                            return f1.CreationTime.CompareTo(f2.CreationTime);
                         });
 
                         while (files.Length > Mod.m_Setting.numOutputs)
@@ -493,7 +462,7 @@ namespace TripsData
                             // Sort by creation-time descending 
                             Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
                             {
-                                return f2.CreationTime.CompareTo(f1.CreationTime);
+                                return f1.CreationTime.CompareTo(f2.CreationTime);
                             });
                         }
                     }

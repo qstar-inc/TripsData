@@ -12,7 +12,7 @@ This mod will output Trip data by time periods to CSV files. There is currently 
 
 The output directory of where those files will be saved is shown on the Mod's options menu. By default none of the files will be generated, they need to be selected at the menu.
 
-There are three types of data that can be created:
+There are five types of data that can be created:
 
 ## Trip Type
 
@@ -25,6 +25,18 @@ Trip type is classified in four categories which are explained below. The number
 ## Citizen Purpose
 
 Some of the citizen purposes - as defined in the game, are collected an added to a file every half hour. Not all purposes are included, but some such as GoingToWork, GoingHome, GoingToSchool are included.
+
+## Transit
+
+Number of passengers waiting for transit and the average passenger waiting time is saved to the csv file every 30 minutes.
+
+## Cars
+
+Number of parked cars at every 30 minutes is saved to the output file.
+
+## Trucks
+
+Number of trucks and truck status flags (as defined in the game), for every 30 minutes.
 
 ## Smooth Speed
 
@@ -40,15 +52,15 @@ Smooth game speed is collected around every 20 in game minutes and saved to the 
 	<!--Link to the forum post where the mod can be discussed-->
 	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/tripsdata-mod.1673785/" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.1.1" />
+	<ModVersion Value="0.3" />
 	<!--Recommended version of the base game to use the mod-->
 	<GameVersion Value="1.1.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<ChangeLog>
-* Fixed cim purpose output
-* Included all citizen purposes in the output
+* Fixed bug with smooth speed files
+* Added truck file
 	</ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
 	<ExternalLink Type="github" Url="https://github.com/ruzbeh0/TripsData" />

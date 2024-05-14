@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,42 +39,10 @@ namespace TripsData
 
                 if (index == 0)
                 {
-                    if (File.Exists(fileName))
-                    {
-                        File.Delete(fileName);
-                    }
+                    string header = "hour,smooth_speed";
 
-                    Mod.log.Info($"Creating file: {fileName}");
-                    using (StreamWriter sw = File.AppendText(fileName))
-                    {
-                        sw.WriteLine($"hour,smooth_speed");
-                    }
+                    Utils.createAndDeleteFiles(fileName, header, Mod.smoothspeed, path);
 
-                    // Get the files
-                    DirectoryInfo info = new DirectoryInfo(Mod.outputPath);
-                    FileInfo[] files = info.GetFiles(Mod.cimpurposeoutput + "*");
-
-                    // Sort by creation-time descending 
-                    Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
-                    {
-                        return f2.CreationTime.CompareTo(f1.CreationTime);
-                    });
-
-                    while (files.Length > Mod.m_Setting.numOutputs)
-                    {
-                        Mod.log.Info($"Deleting: {files[0].FullName}");
-                        File.Delete(files[0].FullName);
-
-                        // Get the files
-                        info = new DirectoryInfo(path);
-                        files = info.GetFiles(Mod.tripsoutput + "*");
-
-                        // Sort by creation-time descending 
-                        Array.Sort(files, delegate (FileInfo f1, FileInfo f2)
-                        {
-                            return f2.CreationTime.CompareTo(f1.CreationTime);
-                        });
-                    }
                 }
 
                 using (StreamWriter sw = File.AppendText(fileName))
