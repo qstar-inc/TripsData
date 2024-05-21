@@ -49,6 +49,9 @@ namespace TripsData
         [SettingsUISection(SettingsSection, TripsDataGroup)]
         public bool citizen_purpose { get; set; } = false;
 
+        [SettingsUISection(SettingsSection, TripsDataGroup)]
+        public bool avg_commute { get; set; } = false;
+
         [SettingsUISection(SettingsSection, CarsDataGroup)]
         public bool cars { get; set; } = false;
 
@@ -105,6 +108,8 @@ namespace TripsData
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.MultilineText)), $"Output Folder:\n{Mod.outputPath}" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.numOutputs)), "Number of output files to keep saved" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.numOutputs)), $"Number of output files to keep saved" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.avg_commute)), "Commute Time Frequency Distribution" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.avg_commute)), $"Number of commuters by trip length in 15 minute bins. File is created at midnight." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.citizen_purpose)), "Citizen Game Purposes by every half hour" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.citizen_purpose)), $"The purposes include: Going Home, Going to School, Going to Work, etc." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.trip_type)), "Number of trips by type and by every half hour" },

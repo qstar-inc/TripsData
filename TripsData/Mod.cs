@@ -21,6 +21,8 @@ namespace TripsData
         public static string transit = "transit";
         public static string cars = "cars";
         public static string trucks = "trucks";
+        public static string garbage_trucks = "garbage_trucks";
+        public static string commute_data = "commute_data";
 
         public static string outputPath = Path.Combine(EnvPath.kUserDataPath, "ModsData", nameof(TripsData));          
 
@@ -48,6 +50,8 @@ namespace TripsData
             updateSystem.UpdateAt<TransitStatistics>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<CarStatistics>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<TruckStatistics>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<GarbageTruckStatistics>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<CommuteStatistics>(SystemUpdatePhase.GameSimulation);
         }
 
         public void OnDispose()

@@ -21,9 +21,9 @@ using UnityEngine;
 
 namespace TripsData
 {
-    public partial class TruckStatistics : GameSystemBase
+    public partial class GarbageTruckStatistics : GameSystemBase
     {
-        private EntityQuery m_QueryTrucks;
+        private EntityQuery m_QueryGarbageTrucks;
         private int previous_index = -1;
 
         public override int GetUpdateInterval(SystemUpdatePhase phase)
@@ -35,14 +35,14 @@ namespace TripsData
         protected override void OnCreate()
         {
             base.OnCreate();
-            this.m_QueryTrucks = this.GetEntityQuery(new EntityQueryDesc()
+            this.m_QueryGarbageTrucks = this.GetEntityQuery(new EntityQueryDesc()
             {
                 Any = new ComponentType[1]
               {
-                ComponentType.ReadOnly<Game.Vehicles.DeliveryTruck>()
+                ComponentType.ReadOnly<Game.Vehicles.GarbageTruck>()
               }
             });
-            this.RequireForUpdate(this.m_QueryTrucks);
+            this.RequireForUpdate(this.m_QueryGarbageTrucks);
         }
 
         protected override void OnUpdate()
@@ -60,59 +60,32 @@ namespace TripsData
                 if (previous_index != index)
                 {
                     previous_index = index;
-                    var results = m_QueryTrucks.ToEntityArray(Allocator.Temp);
-
-                    //Truck Flags
-                    int[] truck_flags = new int[5];
+                    var results = m_QueryGarbageTrucks.ToEntityArray(Allocator.Temp);
 
                     int trucks = 0;
                     foreach (var veh in results)
                     {
-                        Game.Vehicles.DeliveryTruck data1;
+                        Game.Vehicles.GarbageTruck data1;
 
-                        if (EntityManager.TryGetComponent<Game.Vehicles.DeliveryTruck>(veh, out data1))
+                        if (EntityManager.TryGetComponent<Game.Vehicles.GarbageTruck>(veh, out data1))
                         {
                             trucks++;
-                            if(data1.m_State.Equals(DeliveryTruckFlags.DummyTraffic))
-                            {
-                                truck_flags[0]++;
-                            }
-                            if (data1.m_State.Equals(DeliveryTruckFlags.Returning))
-                            {
-                                truck_flags[1]++;
-                            }
-                            if (data1.m_State.Equals(DeliveryTruckFlags.Buying))
-                            {
-                                truck_flags[2]++;
-                            }
-                            if (data1.m_State.Equals(DeliveryTruckFlags.Delivering))
-                            {
-                                truck_flags[3]++;
-                            }
-                            if (data1.m_State.Equals(DeliveryTruckFlags.TransactionCancelled))
-                            {
-                                truck_flags[4]++;
-                            }
                         }
                     }
 
-                    string path = Path.Combine(Mod.outputPath, Mod.trucks);
+                    string path = Path.Combine(Mod.outputPath, Mod.garbage_trucks);
                     string fileName = path +
                         "_" + currentDateTime.DayOfYear + "_" + currentDateTime.Year + ".csv";
 
                     if (index == 0)
                     {
-                        string header = "hour,total_trucks,dummy_traffic,returning,buying,delivering,transaction_cancelled";
+                        string header = "hour,total_garbage_trucks";
 
-                        Utils.createAndDeleteFiles(fileName, header, Mod.trucks, path);
+                        Utils.createAndDeleteFiles(fileName, header, Mod.garbage_trucks, path);
 
                     }
 
                     string line = $"{(float)index / 2f},{trucks}";
-                    for (int i = 0; i < 5; i++)
-                    {
-                        line += $",{truck_flags[i]}";
-                    }
 
                     using (StreamWriter sw = File.AppendText(fileName))
                     {
@@ -122,7 +95,7 @@ namespace TripsData
             }
         }
 
-        public TruckStatistics()
+        public GarbageTruckStatistics()
         {
         }
     }
